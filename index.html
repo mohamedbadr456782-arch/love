@@ -56,10 +56,10 @@ function heart(){
 function transition(name){
  phase=name;phaseAt=performance.now();
  if(name==='three'||name==='two'||name==='one')particles=[];
- else if(name==='are')makeTarget(sampleText('Are',170));
- else if(name==='love')makeTarget(sampleText('Love',165));
- else if(name==='my')makeTarget(sampleText('My',170));
- else if(name==='you')makeTarget(sampleText('You',165));
+ else if(name==='you')makeTarget(sampleText('YOU',165));
+ else if(name==='are')makeTarget(sampleText('ARE',170));
+ else if(name==='my')makeTarget(sampleText('MY',170));
+ else if(name==='love')makeTarget(sampleText('LOVE',165));
  else if(name==='heart')heart();
 }
 function drawParticles(now){
@@ -79,12 +79,12 @@ function loop(now){
  requestAnimationFrame(loop);if(now-last<FRAME_INTERVAL)return;
  const dt=Math.min(50,now-last||16);last=now;ctx.fillStyle='rgba(2,2,5,.24)';ctx.fillRect(0,0,w,h);rain(dt);
  if(started){
-  const elapsed=(now-phaseAt)/1000,order=[['three',1.5],['two',1.5],['one',1.5],['are',2.3],['love',2.3],['my',2.1],['you',2.5],['heart',9999]],idx=order.findIndex(a=>a[0]===phase);
+  const elapsed=(now-phaseAt)/1000,order=[['three',1.5],['two',1.5],['one',1.5],['you',2.3],['are',2.3],['my',2.1],['love',2.5],['heart',9999]],idx=order.findIndex(a=>a[0]===phase);
   if(idx>=0&&idx<order.length-1&&elapsed>order[idx][1])transition(order[idx+1][0]);
   if(['three','two','one'].includes(phase)){const a=Math.min(1,elapsed*2);centerText(phase==='three'?'3':phase==='two'?'2':'1',Math.min(1,a)*(.75+.25*Math.sin(now*.01)));}
   else{
    drawParticles(now);
-   if(phase==='heart'&&elapsed>1){ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`bold ${Math.max(12,Math.min(18,w*.035))}px Arial`;ctx.fillStyle='#fff';if(!mobile){ctx.shadowColor='#ff8bcf';ctx.shadowBlur=12;}ctx.fillText('I LOVE YOU SAYANG ♥',w/2,h/2+5);ctx.restore();}
+   if(phase==='heart'&&elapsed>1){ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`bold ${Math.max(12,Math.min(18,w*.035))}px Arial`;ctx.fillStyle='#fff';if(!mobile){ctx.shadowColor='#ff8bcf';ctx.shadowBlur=12;}ctx.fillText('I LOVE YOU PRINCESS ♥',w/2,h/2+5);ctx.restore();}
   }
  }
 }
