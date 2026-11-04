@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#030305"><title>A little surprise ♥</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#030305;color:#fff;font-family:Arial,Helvetica,sans-serif}body{min-height:100svh}canvas{position:absolute;inset:0;width:100%;height:100%;display:block}.veil{position:absolute;inset:0;display:grid;place-items:center;background:radial-gradient(ellipse at center,rgba(28,8,25,.35),rgba(0,0,0,.92));transition:opacity 1s ease;z-index:3}.veil.hide{opacity:0;pointer-events:none}.start{border:1px solid rgba(255,180,225,.6);background:rgba(25,8,24,.72);color:#fff;padding:17px 28px;border-radius:999px;font-size:15px;letter-spacing:2px;cursor:pointer;box-shadow:0 0 28px rgba(255,90,190,.2);backdrop-filter:blur(8px)}.start:focus-visible{outline:2px solid #fff;outline-offset:5px}.hint{position:absolute;bottom:25px;color:#c9a9c1;font-size:11px;letter-spacing:2px;text-align:center}.sound{position:absolute;z-index:2;right:16px;top:14px;color:#d9b9d0;font-size:11px;letter-spacing:1px;opacity:.7}.caption{position:absolute;z-index:2;bottom:15px;width:100%;text-align:center;color:#9f8299;font-size:10px;letter-spacing:2px;opacity:.55}.sound button{background:transparent;border:1px solid #74536b;color:#f6d8ee;border-radius:20px;padding:7px 11px;cursor:pointer}
+@media(prefers-reduced-motion:reduce){.veil{transition:none}}
+</style></head>
+<body>
+<canvas id="scene" aria-label="Animated digital rain, words and a heart made of glowing particles"></canvas>
+<div class="sound"><button id="mute" type="button">♫ SOUND ON</button></div>
+<div class="veil" id="veil"><button class="start" id="start" type="button">OPEN YOUR SURPRISE ♥</button><div class="hint">TURN YOUR SOUND ON</div></div>
+<div class="caption">MADE WITH ♥</div>
+<audio id="music" preload="auto" loop><source src="suara-asli-sadness.mp3" type="audio/mpeg"></audio>
+<script>
+(()=>{
+const canvas=document.getElementById('scene'),ctx=canvas.getContext('2d'),music=document.getElementById('music');
+const veil=document.getElementById('veil'),start=document.getElementById('start'),mute=document.getElementById('mute');
+let w=0,h=0,dpr=1,drops=[],particles=[],phase='idle',phaseAt=0,started=false,muted=false,last=0,heartPoints=[];
+const chars='アカサタナハマヤラワ012345789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+function resize(){dpr=Math.min(devicePixelRatio||1,2);w=innerWidth;h=innerHeight;canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);const cols=Math.ceil(w/15);drops=Array.from({length:cols},()=>({y:Math.random()*h,s:2+Math.random()*5,a:.3+Math.random()*.7}));}
+addEventListener('resize',resize);resize();
+function rain(dt){ctx.font='12px monospace';for(let i=0;i<drops.length;i++){let d=drops[i],x=i*15,y=d.y;ctx.fillStyle=`rgba(225,240,235,${d.a*.8})`;ctx.fillText(chars[(Math.random()*chars.length)|0],x,y);ctx.fillStyle=`rgba(255,255,255,${d.a*.22})`;ctx.fillText(chars[(Math.random()*chars.length)|0],x,y-14);d.y+=d.s*dt*.06;if(d.y>h+20){d.y=-Math.random()*h*.3;d.s=2+Math.random()*5;d.a=.3+Math.random()*.7;}}}
+function sampleText(text,size){let off=document.createElement('canvas'),o=off.getContext('2d');off.width=Math.min(w,1000);off.height=Math.min(h,360);let fs=Math.min(size,off.width/(text.length*.62));o.font=`bold ${fs}px Arial`;o.textAlign='center';o.textBaseline='middle';o.fillStyle='#fff';o.fillText(text,off.width/2,off.height/2);let data=o.getImageData(0,0,off.width,off.height).data,pts=[];for(let y=0;y<off.height;y+=5)for(let x=0;x<off.width;x+=5)if(data[(y*off.width+x)*4+3]>100)pts.push({x:x-off.width/2,y:y-off.height/2});return pts;}
+function makeTarget(points,color='#fff'){particles=[];const scale=Math.min(1,w/650,h/420);for(let i=0;i<points.length;i++){let p=points[i];particles.push({x:(Math.random()-.5)*w*1.2,y:(Math.random()-.5)*h*1.2,tx:w/2+p.x*scale,ty:h/2+p.y*scale,vx:0,vy:0,r:.7+Math.random()*1.6,tw:Math.random()*6.28,color});}}
+function heart(){let pts=[];for(let t=0;t<Math.PI*2;t+=.025){let x=16*Math.pow(Math.sin(t),3),y=13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t);pts.push({x:x*12,y:-y*12});}let outline=[];for(let k=0;k<3;k++)for(let p of pts)outline.push({x:p.x+(Math.random()-.5)*4,y:p.y+(Math.random()-.5)*4});makeTarget(outline,'#ffb6e5');}
+function transition(name){phase=name;phaseAt=performance.now();if(name==='three'||name==='two'||name==='one'){particles=[];}else if(name==='are')makeTarget(sampleText('Are',170));else if(name==='love')makeTarget(sampleText('Love',165));else if(name==='my')makeTarget(sampleText('My',170));else if(name==='you')makeTarget(sampleText('You',165));else if(name==='heart')heart();}
+function drawParticles(now){for(let p of particles){let dx=p.tx-p.x,dy=p.ty-p.y;p.vx=(p.vx+dx*.012)*.86;p.vy=(p.vy+dy*.012)*.86;p.x+=p.vx;p.y+=p.vy;let pulse=.65+.35*Math.sin(now*.004+p.tw);ctx.beginPath();ctx.fillStyle=p.color==='#fff'?`rgba(255,255,255,${pulse})`:`rgba(255,174,224,${pulse})`;ctx.shadowBlur=phase==='heart'?9:5;ctx.shadowColor=p.color;ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();}ctx.shadowBlur=0;}
+function centerText(txt,alpha=1){ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`bold ${Math.min(110,w*.22)}px Arial`;ctx.fillStyle=`rgba(255,255,255,${alpha})`;ctx.shadowColor='#fff';ctx.shadowBlur=22;ctx.fillText(txt,w/2,h/2);ctx.restore();}
+function loop(now){let dt=Math.min(40,now-last||16);last=now;ctx.fillStyle='rgba(2,2,5,.24)';ctx.fillRect(0,0,w,h);rain(dt);if(started){let elapsed=(now-phaseAt)/1000;
+const order=[['three',1.5],['two',1.5],['one',1.5],['are',2.3],['love',2.3],['my',2.1],['you',2.5],['heart',9999]];
+let idx=order.findIndex(a=>a[0]===phase);if(idx>=0&&idx<order.length-1&&elapsed>order[idx][1])transition(order[idx+1][0]);
+if(['three','two','one'].includes(phase)){let a=Math.min(1,elapsed*2);centerText(phase==='three'?'3':phase==='two'?'2':'1',Math.min(1,a)*(.75+.25*Math.sin(now*.01)));}
+else {drawParticles(now);if(phase==='heart'&&elapsed>1){ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`bold ${Math.max(12,Math.min(18,w*.035))}px Arial`;ctx.fillStyle='#fff';ctx.shadowColor='#ff8bcf';ctx.shadowBlur=12;ctx.fillText('I LOVE YOU SAYANG ♥',w/2,h/2+5);ctx.restore();}}
+}requestAnimationFrame(loop);}
+requestAnimationFrame(loop);
+async function begin(){if(started)return;started=true;veil.classList.add('hide');music.muted=muted;try{await music.play();}catch(e){mute.textContent='♫ TAP FOR SOUND';}transition('three');}
+start.addEventListener('click',begin);mute.addEventListener('click',async()=>{muted=!muted;music.muted=muted;if(!muted){try{await music.play();}catch(e){}}mute.textContent=muted?'♫ SOUND OFF':'♫ SOUND ON';});
+})();
+</script></body></html>
